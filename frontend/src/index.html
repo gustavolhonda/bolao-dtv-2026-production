@@ -2,7 +2,8 @@
 <html lang="pt">
 <head>
     <meta charset="UTF-8">
-    <title>🏆 Bolão Copa 2026 - DevOps</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏆 Bolão DTV Copa 2026 </title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; padding: 20px; margin: 0; }
         
@@ -107,12 +108,110 @@
         .add-user-form { display: flex; gap: 8px; }
         .add-user-form input { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9em; }
         .add-user-form input:focus { border-color: #1a73e8; outline: none; }
+        #input-novo-pin { flex: 0 0 150px; min-width: 150px; }
+        #input-pin { width: 210px; }
         .add-user-form button { width: auto; padding: 0 15px; background: #1a73e8; }
         .add-user-form button:hover { background: #1557b0; }
+
+        /* ============================
+           RESPONSIVIDADE — MOBILE
+           ============================ */
+        @media (max-width: 768px) {
+            body { padding: 10px; }
+
+            h1 { font-size: 1.3em; margin-bottom: 16px; }
+
+            /* Empilha sidebar acima do container de jogos */
+            .layout-principal { 
+                flex-direction: column; 
+                gap: 12px; 
+                width: 100%;
+                box-sizing: border-box;
+            }
+
+            /* Sidebar ocupa largura total e não fica sticky */
+            .sidebar { 
+                flex: 0 0 auto;
+                width: 100%; 
+                min-width: 0;
+                box-sizing: border-box; 
+                position: static; 
+                padding: 16px;
+            }
+
+            /* Container de jogos também ocupa tudo */
+            .container-jogos { 
+                width: 100%;
+                min-width: 0;
+                box-sizing: border-box;
+                padding: 16px; 
+            }
+
+            /* Ranking mais compacto */
+            .ranking-table th, .ranking-table td { padding: 8px 6px; font-size: 0.9em; }
+
+            /* Formulário novo participante empilha verticalmente */
+            .add-user-form { flex-direction: column; gap: 8px; }
+            .add-user-form input,
+            .add-user-form button { width: 100% !important; box-sizing: border-box; }
+            #input-novo-pin { flex: 0 0 auto !important; min-width: 0 !important; }
+            .add-user-form button { padding: 10px 0; }
+
+            /* PIN de acesso */
+            #input-pin { width: 100% !important; box-sizing: border-box; margin-top: 10px; margin-bottom: 16px; }
+
+            /* Card de jogo: reorganiza em duas linhas */
+            .jogo-card { 
+                flex-wrap: wrap; 
+                gap: 8px; 
+                padding: 12px 0; 
+            }
+
+            /* Linha 1: meta info (data/grupo) ocupa a largura toda */
+            .meta { 
+                flex: 0 0 100%; 
+                font-size: 0.78em; 
+                display: flex; 
+                gap: 10px; 
+                align-items: center;
+                border-bottom: 1px dashed #eee;
+                padding-bottom: 6px;
+            }
+
+            /* Linha 2: times + placar ocupam o espaço, botão vai pra direita */
+            .equipas-wrapper { flex: 1; min-width: 0; }
+
+            /* Nomes dos times menores */
+            .time-box { font-size: 0.85em; gap: 4px; }
+
+            /* Placar mais estreito */
+            .placar-inputs { 
+                flex: 0 0 110px; 
+                gap: 6px; 
+                font-size: 1em; 
+            }
+            input[type="number"] { width: 38px; padding: 6px; font-size: 1em; }
+
+            /* Botão salvar / status encerrado menores */
+            .acao-jogo { flex: 0 0 70px; }
+            button { padding: 8px 0; font-size: 0.85em; }
+            .status-encerrado { font-size: 0.78em; }
+
+            /* Flags menores */
+            .flag { width: 18px; height: 14px; }
+        }
+
+        /* Telas muito pequenas (< 380px) */
+        @media (max-width: 380px) {
+            .time-box { font-size: 0.75em; }
+            .placar-inputs { flex: 0 0 96px; gap: 4px; }
+            input[type="number"] { width: 32px; padding: 5px; font-size: 0.95em; }
+            .acao-jogo { flex: 0 0 60px; }
+        }
     </style>
 </head>
 <body>
-    <h1>🏆 Meu Bolão Copa 2026</h1>
+    <h1>🏆 Bolão DTV Copa 2026</h1>
 
     <div class="layout-principal">
         
@@ -134,7 +233,7 @@
                 <h4>➕ Novo Participante</h4>
                 <div class="add-user-form">
                   <input type="text" id="input-novo-usuario" placeholder="Digite o nome...">
-                  <input type="number" id="input-novo-pin" placeholder="Crie um PIN" maxlength="4" style="width: 100px; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+                  <input type="number" id="input-novo-pin" placeholder="Crie um PIN" maxlength="4" style="padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
     
                   <button onclick="adicionarUsuario()">Adicionar</button>
                 </div>
@@ -145,7 +244,7 @@
             <label>Selecione seu nome:</label>
             <select id="select-usuario" onchange="atualizarInterface()"></select>
 
-            <input type="number" id="input-pin" placeholder="Seu PIN (4 dígitos)" maxlength="4" style="width: 150px; padding: 8px; border-radius: 6px; border: 1px solid #ccc;">
+            <input type="number" id="input-pin" placeholder="Seu PIN (4 dígitos)" maxlength="4" style="padding: 8px; border-radius: 6px; border: 1px solid #ccc;">
 
             <div id="lista-jogos"></div>
         </div>
