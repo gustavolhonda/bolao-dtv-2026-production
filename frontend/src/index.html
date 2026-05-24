@@ -153,7 +153,9 @@
     </div>
 
     <script>
-        const API = '/api';
+        const API = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:3000/api'
+            : 'https://bolao-dtv-2026.onrender.com/api';
 
         const flags = {
             "África do Sul": "za", "Alemanha": "de", "Arábia Saudita": "sa", "Argélia": "dz", "Argentina": "ar", "Austrália": "au", "Áustria": "at",
