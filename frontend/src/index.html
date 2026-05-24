@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <title>🏆 Bolão Copa 2026 - DevOps</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; padding: 20px; margin: 0; }
+        
+        h1 { text-align: center; color: #1a73e8; margin-bottom: 30px; width: 100%; }
+        h3 { border-bottom: 2px solid #eee; padding-bottom: 10px; margin-top: 20px; color: #555; }
+
+        /* Layout: Tabela Lateral e Conteúdo Central */
+        .layout-principal { width: 100%; display: flex; margin: 0 auto; gap: 20px; align-items: flex-start; }
+        
+        /* Sidebar (Ranking) travada para não encolher */
+        .sidebar { flex: 0 0 280px; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); position: sticky; top: 20px;}
+        .ranking-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        .ranking-table th, .ranking-table td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
+        .ranking-table th { background-color: #f8f9fa; color: #333; }
+        .ranking-table tr:nth-child(1) td { font-weight: bold; color: #d4af37; }
+
+        /* Container de Jogos ocupando o resto do espaço */
+        .container-jogos { flex: 1; min-width: 0; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%;}
+
+        label { font-weight: bold; color: #555; display: block; margin-bottom: 8px; }
+        select { width: 100%; padding: 12px; margin-bottom: 20px; border-radius: 8px; border: 1px solid #ddd; font-size: 1em; background-color: #fff;}
+
+        .jogo-card { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            border-bottom: 1px solid #eee; 
+            padding: 15px 0; 
+            gap: 15px; 
+        }
+        .jogo-card:last-child { border-bottom: none; }
+        .jogo-card:hover { background-color: #fafafa; }
+
+        /* Coluna 1: Data e Grupo (Tamanho fixo para não empurrar nada) */
+        .meta { flex: 0 0 110px; font-size: 0.85em; color: #777; line-height: 1.4em; }
+        
+        /* Coluna 2: O Meio do campo (Times e Placar) */
+        .equipas-wrapper { 
+            flex: 1; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            min-width: 0; 
+        }
+
+        /* Os nomes dos times pegam o mesmo espaço (flex: 1) para o placar ficar no centro morto */
+        .time-box { 
+            flex: 1; 
+            display: flex; 
+            align-items: center; 
+            font-size: 1.1em; 
+            font-weight: 500; 
+            gap: 8px; 
+        }
+        .time-a { justify-content: flex-end; text-align: right; }
+        .time-b { justify-content: flex-start; text-align: left; }
+
+        .btn-salvo {
+            background-color: #28a745 !important; /* Verde padrão de sucesso */
+            color: white !important;
+            border: none;
+        }
+
+        /* O centro dos inputs (Tamanho fixo de 140px) */
+        .placar-inputs { 
+            flex: 0 0 140px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 10px; 
+            font-weight: bold; 
+            font-size: 1.2em;
+        }
+        
+        input[type="number"] { 
+            width: 50px; padding: 8px; text-align: center; border: 2px solid #ddd; border-radius: 6px; 
+            transition: 0.2s; font-size: 1.1em; color: #333;
+            -moz-appearance: textfield; 
+        }
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type="number"]:focus { border-color: #1a73e8; outline: none; }
+        
+        /* Coluna 3: Ação/Botão (Tamanho fixo de 100px na ponta direita) */
+        .acao-jogo { 
+            flex: 0 0 100px; 
+            display: flex; 
+            justify-content: flex-end; 
+            align-items: center; 
+        }
+        
+        button { background: #34a853; color: white; border: none; padding: 10px 0; cursor: pointer; border-radius: 8px; font-weight: bold; transition: 0.3s; width: 100%;}
+        button:hover { background: #2d9248; }
+        button:disabled { background: #aaa; cursor: not-allowed; }
+
+        .status-encerrado { color: #d32f2f; font-weight: bold; font-size: 0.85em; text-align: center; width: 100%;}
+
+        .flag { width: 24px; height: 18px; vertical-align: middle; box-shadow: 0 1px 3px rgba(0,0,0,0.2); border-radius: 2px; }
+    
+        .add-user-box { margin-top: 30px; border-top: 2px solid #eee; padding-top: 15px; }
+        .add-user-box h4 { margin: 0 0 10px 0; color: #555; font-size: 1em; }
+        .add-user-form { display: flex; gap: 8px; }
+        .add-user-form input { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9em; }
+        .add-user-form input:focus { border-color: #1a73e8; outline: none; }
+        .add-user-form button { width: auto; padding: 0 15px; background: #1a73e8; }
+        .add-user-form button:hover { background: #1557b0; }
+    </style>
+</head>
+<body>
+    <h1>🏆 Meu Bolão Copa 2026</h1>
+
+    <div class="layout-principal">
+        
+        <div class="sidebar">
+            <h3>📊 Ranking Oficial</h3>
+            <table class="ranking-table">
+                <thead>
+                    <tr>
+                        <th>Pos</th>
+                        <th>Nome</th>
+                        <th>Pts</th>
+                    </tr>
+                </thead>
+                <tbody id="corpo-ranking">
+                </tbody>
+            </table>
+
+            <div class="add-user-box">
+                <h4>➕ Novo Participante</h4>
+                <div class="add-user-form">
+                  <input type="text" id="input-novo-usuario" placeholder="Digite o nome...">
+                  <input type="number" id="input-novo-pin" placeholder="Crie um PIN" maxlength="4" style="width: 100px; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+    
+                  <button onclick="adicionarUsuario()">Adicionar</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="container-jogos">
+            <label>Selecione seu nome:</label>
+            <select id="select-usuario" onchange="atualizarInterface()"></select>
+
+            <input type="number" id="input-pin" placeholder="Seu PIN (4 dígitos)" maxlength="4" style="width: 150px; padding: 8px; border-radius: 6px; border: 1px solid #ccc;">
+
+            <div id="lista-jogos"></div>
+        </div>
+
+    </div>
+
+    <script>
+        const API = '/api';
+
+        const flags = {
+            "África do Sul": "za", "Alemanha": "de", "Arábia Saudita": "sa", "Argélia": "dz", "Argentina": "ar", "Austrália": "au", "Áustria": "at",
+            "Bélgica": "be", "Bósnia e Herzegovina": "ba", "Brasil": "br", "Cabo Verde": "cv", "Canadá": "ca", "Catar": "qa", "Colômbia": "co", 
+            "Costa do Marfim": "ci", "Croácia": "hr", "Curaçao": "cw", "Egito": "eg", "Equador": "ec", "Escócia": "gb-sct", "Espanha": "es", 
+            "Estados Unidos": "us", "França": "fr", "Gana": "gh", "Haiti": "ht", "Inglaterra": "gb-eng", "Irã": "ir", "Japão": "jp", "Jordânia": "jo", 
+            "Marrocos": "ma", "México": "mx", "Noruega": "no", "Nova Zelândia": "nz", "Países Baixos": "nl", "Panamá": "pa", "Paraguai": "py", 
+            "Portugal": "pt", "RD Congo": "cd", "República do Congo": "cg", "Iraque": "iq", "República da Coreia": "kr", "Senegal": "sn", 
+            "Suécia": "se", "Suíça": "ch", "Tchéquia": "cz", "Tunísia": "tn", "Turquia": "tr", "Uruguai": "uy", "Uzbequistão": "uz"
+        };
+
+        async function iniciar() {
+            carregarRanking();
+            await carregarEstruturaJogos();
+        }
+
+        async function carregarRanking() {
+            try {
+                const res = await fetch(`${API}/usuarios`);
+                const users = await res.json();
+                
+                const select = document.getElementById('select-usuario');
+                const tbodyRanking = document.getElementById('corpo-ranking');
+                
+                select.innerHTML = '';
+                tbodyRanking.innerHTML = '';
+
+                users.forEach((u, index) => {
+                    select.innerHTML += `<option value="${u.id}">${u.nome}</option>`;
+                    tbodyRanking.innerHTML += `
+                        <tr>
+                            <td>${index + 1}º</td>
+                            <td>${u.nome}</td>
+                            <td><strong>${u.pontos}</strong></td>
+                        </tr>
+                    `;
+                });
+
+                atualizarInterface();
+            } catch (error) {
+                console.error("Erro ao carregar ranking:", error);
+            }
+        }
+
+        async function carregarEstruturaJogos() {
+            try {
+                const res = await fetch(`${API}/jogos`);
+                const jogos = await res.json();
+                const lista = document.getElementById('lista-jogos');
+                lista.innerHTML = '';
+                
+                // Mapeamento de nomes amigáveis para as fases
+                const titulosFases = {
+                    'fase_de_grupos': '⚽ Fase de Grupos',
+                    'oitavas': '🔥 Oitavas de Final',
+                    'quartas': '⚔️ Quartas de Final',
+                    'semi': '🛡️ Semifinais',
+                    'final': '🏆 Grande Final'
+                };
+
+                let faseAtual = '';
+
+                jogos.forEach(j => {
+                    // Se mudou de fase na iteração, injeta o título da nova seção
+                    if (j.fase !== faseAtual) {
+                        faseAtual = j.fase;
+                        const titulo = titulosFases[faseAtual] || 'Próxima Fase';
+                        lista.innerHTML += `<h3 style="margin-top: 40px; color: #1a73e8; border-bottom: 2px solid #1a73e8;">${titulo}</h3>`;
+                    }
+
+                    const codA = flags[j.time_a];
+                    const codB = flags[j.time_b];
+                    const imgA = codA ? `<img src="https://flagcdn.com/24x18/${codA}.png" class="flag">` : ``;
+                    const imgB = codB ? `<img src="https://flagcdn.com/24x18/${codB}.png" class="flag">` : ``;
+
+                    const jogoEncerrado = j.gols_time_a_real !== null && j.gols_time_a_real !== undefined;
+                    const statusInput = jogoEncerrado ? "disabled" : "";
+                    
+                    const acaoDireita = jogoEncerrado 
+                        ? `<div class="status-encerrado">Fim<br>${j.gols_time_a_real} x ${j.gols_time_b_real}</div>` 
+                        : `<button id="btn_salvar_${j.id}" onclick="salvar(${j.id})">Salvar</button>`;
+
+                    const opacidade = jogoEncerrado ? "opacity: 0.7; background-color: #fcfcfc;" : "";
+                    const textoIdentificador = j.fase === 'fase_de_grupos' ? `Grupo ${j.grupo}` : 'Mata-Mata';
+
+                    lista.innerHTML += `
+                        <div class="jogo-card" style="${opacidade}">
+                            <div class="meta"><strong>${textoIdentificador}</strong><br>${j.data_hora}</div>
+                            
+                            <div class="equipas-wrapper">
+                                <div class="time-box time-a">${j.time_a} ${imgA}  </div>
+                                
+                                <div class="placar-inputs">
+                                    <input type="number" id="gols_a_${j.id}" placeholder="0" min="0" ${statusInput}> 
+                                    <span>x</span> 
+                                    <input type="number" id="gols_b_${j.id}" placeholder="0" min="0" ${statusInput}>
+                                </div>
+                                
+                                <div class="time-box time-b">  ${imgB} ${j.time_b}</div>
+                            </div>
+                            
+                            <div class="acao-jogo">${acaoDireita}</div>
+                        </div>`;
+                });
+            } catch (error) {
+                console.error("Erro ao carregar jogos:", error);
+            }
+        }
+
+        async function adicionarUsuario() {
+            const inputNome = document.getElementById('input-novo-usuario');
+            const inputPin = document.getElementById('input-novo-pin'); // Pega o campo PIN
+            
+            const nome = inputNome.value.trim();
+            const pin = inputPin.value.trim();
+
+            if (!nome) return alert("Por favor, digite um nome válido!");
+            if (pin.length !== 4) return alert("O PIN deve ter exatamente 4 dígitos!");
+
+            try {
+                const res = await fetch(`${API}/usuarios`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    // Agora manda o nome E o pin
+                    body: JSON.stringify({ nome: nome, pin: pin }) 
+                });
+
+                if (res.ok) {
+                    alert(`Usuário "${nome}" adicionado! Guarde seu PIN: ${pin}`);
+                    inputNome.value = ""; 
+                    inputPin.value = ""; // Limpa o campo do PIN também
+                    carregarRanking(); 
+                } else {
+                    alert("Erro ao adicionar usuário. Verifique o backend.");
+                }
+            } catch (error) {
+                console.error("Erro ao adicionar usuário:", error);
+                alert("Falha na comunicação com o servidor.");
+            }
+        }
+
+        async function atualizarInterface() {
+            try {
+                const selectElement = document.getElementById('select-usuario');
+                if(!selectElement.value) return; 
+
+                const userId = selectElement.value;
+                document.querySelectorAll('input').forEach(i => i.value = "");
+
+                const res = await fetch(`${API}/palpites/${userId}`);
+                const palpites = await res.json();
+                
+                palpites.forEach(p => {
+                    const inputA = document.getElementById(`gols_a_${p.jogo_id}`);
+                    const inputB = document.getElementById(`gols_b_${p.jogo_id}`);
+                    if(inputA && inputB) {
+                        inputA.value = p.gols_time_a;
+                        inputB.value = p.gols_time_b;
+                    }
+                });
+                carregarPalpitesDoUsuario();
+            } catch (error) {
+                console.error("Erro ao atualizar interface:", error);
+            }
+        }
+
+        async function salvar(jogoId) {
+            const userId = document.getElementById('select-usuario').value;
+            const gA = document.getElementById(`gols_a_${jogoId}`).value;
+            const gB = document.getElementById(`gols_b_${jogoId}`).value;
+
+            const userPin = document.getElementById('input-pin').value;
+            if (!userId) return alert("Selecione seu nome primeiro!");
+            if (userPin === "") return alert("Digite seu PIN para salvar!");
+
+            try {
+                const res = await fetch(`${API}/palpites`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ usuario_id: userId, jogo_id: jogoId, gols_time_a: gA, gols_time_b: gB, pin: userPin })
+                });
+                
+                const data = await res.json();
+
+                if (res.ok) {
+                  const btn = document.getElementById(`btn_salvar_${jogoId}`);
+    
+                  // Adiciona a classe verde e muda o texto
+                  btn.classList.add('btn-salvo');
+                  btn.innerText = 'Salvo ✅';
+                } else {
+                  alert(`❌ Erro: ${data.erro}`);
+                }
+            } catch (error) {
+                console.error("Erro ao salvar palpite:", error);
+                alert("Ocorreu um erro ao salvar seu palpite. Tente novamente.");
+            }
+        }
+
+        async function carregarPalpitesDoUsuario() {
+            const userId = document.getElementById('select-usuario').value;
+            
+            if (!userId) return; // Se for o "Selecione seu nome", não faz nada
+
+            try {
+                // Usa a rota que você já criou no backend!
+                const res = await fetch(`${API}/palpites/${userId}`);
+                const palpites = await res.json();
+
+                // Para cada palpite que o banco retornar...
+                palpites.forEach(palpite => {
+                    const inputA = document.getElementById(`gols_a_${palpite.jogo_id}`);
+                    const inputB = document.getElementById(`gols_b_${palpite.jogo_id}`);
+                    const btn = document.getElementById(`btn_salvar_${palpite.jogo_id}`);
+
+                    // 1. Preenche os campos com os gols que ele tinha salvo
+                    if (inputA && inputB) {
+                        inputA.value = palpite.gols_time_a;
+                        inputB.value = palpite.gols_time_b;
+                    }
+
+                    // 2. Pinta o botão de verde
+                    if (btn) {
+                        btn.classList.add('btn-salvo');
+                        btn.innerText = 'Salvo ✅';
+                    }
+                });
+            } catch (error) {
+                console.error("Erro ao carregar palpites:", error);
+            }
+        }
+
+        iniciar();
+    </script>
+</body>
+</html>

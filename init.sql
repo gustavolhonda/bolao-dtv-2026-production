@@ -1,0 +1,105 @@
+DROP TABLE IF EXISTS palpites;
+DROP TABLE IF EXISTS jogos;
+DROP TABLE IF EXISTS usuarios;
+
+CREATE TABLE usuarios (
+    id SERIAL PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    pin VARCHAR(4) NOT NULL
+);
+
+CREATE TABLE jogos (
+    id SERIAL PRIMARY KEY,
+    grupo CHAR(1),
+    data_hora VARCHAR(50),
+    time_a VARCHAR(50),
+    time_b VARCHAR(50),
+    local VARCHAR(100),
+    fase VARCHAR(50) DEFAULT 'fase_de_grupos',
+    gols_time_a_real INTEGER, -- NULL indica que o jogo ainda não aconteceu
+    gols_time_b_real INTEGER  -- NULL indica que o jogo ainda não aconteceu
+);
+
+CREATE TABLE palpites (
+    id SERIAL PRIMARY KEY,
+    usuario_id INTEGER REFERENCES usuarios(id),
+    jogo_id INTEGER REFERENCES jogos(id),
+    gols_time_a INTEGER NOT NULL,
+    gols_time_b INTEGER NOT NULL,
+    UNIQUE(usuario_id, jogo_id)
+);
+
+-- JOGOS FASE DE GRUPOS
+INSERT INTO jogos (grupo, data_hora, time_a, time_b, local) VALUES 
+('A', '11/06 16h', 'México', 'África do Sul', 'Cidade do México'),
+('A', '11/06 23h', 'República da Coreia', 'Tchéquia', 'Guadalajara'),
+('A', '18/06 13h', 'Tchéquia', 'África do Sul', 'Atlanta'),
+('A', '18/06 22h', 'México', 'República da Coreia', 'Guadalajara'),
+('A', '24/06 22h', 'Tchéquia', 'México', 'Cidade do México'),
+('A', '24/06 22h', 'África do Sul', 'República da Coreia', 'Monterrey'),
+('B', '12/06 16h', 'Canadá', 'Bósnia e Herzegovina', 'Toronto'),
+('B', '13/06 16h', 'Catar', 'Suíça', 'San Francisco'),
+('B', '18/06 16h', 'Suíça', 'Canadá', 'Los Angeles'),
+('B', '19/06 19h', 'Canadá', 'Catar', 'Vancouver'),
+('B', '24/06 16h', 'Suíça', 'Canadá', 'Vancouver'),
+('B', '24/06 16h', 'Bósnia e Herzegovina', 'Catar', 'Seattle'),
+('C', '13/06 19h', 'Brasil', 'Marrocos', 'NJ/NY'),
+('C', '13/06 22h', 'Haiti', 'Escócia', 'Boston'),
+('C', '19/06 19h', 'Escócia', 'Marrocos', 'Boston'),
+('C', '19/06 21h30', 'Brasil', 'Haiti', 'Filadélfia'),
+('C', '24/06 19h', 'Escócia', 'Brasil', 'Miami'),
+('C', '24/06 19h', 'Marrocos', 'Haiti', 'Atlanta'),
+('D', '12/06 22h', 'Estados Unidos', 'Paraguai', 'Los Angeles'),
+('D', '13/06 01h', 'Austrália', 'Turquia', 'Vancouver'),
+('D', '19/06 01h', 'Turquia', 'Paraguai', 'San Francisco'),
+('D', '19/06 16h', 'Estados Unidos', 'Austrália', 'Seattle'),
+('D', '25/06 23h', 'Turquia', 'Estados Unidos', 'Los Angeles'),
+('D', '25/06 23h', 'Paraguai', 'Austrália', 'San Francisco'),
+('E', '14/06 14h', 'Alemanha', 'Curaçao', 'Houston'),
+('E', '14/06 20h', 'Costa do Marfim', 'Equador', 'Filadélfia'),
+('E', '20/06 17h', 'Alemanha', 'Costa do Marfim', 'Toronto'),
+('E', '20/06 21h', 'Equador', 'Curaçao', 'Kansas City'),
+('E', '25/06 17h', 'Equador', 'Alemanha', 'NJ/NY'),
+('E', '25/06 17h', 'Curaçao', 'Costa do Marfim', 'Filadélfia'),
+('F', '14/06 17h', 'Países Baixos', 'Japão', 'Dallas'),
+('F', '14/06 23h', 'Suécia', 'Tunísia', 'Monterrey'),
+('F', '20/06 14h', 'Países Baixos', 'Suécia', 'Houston'),
+('F', '20/06 01h', 'Tunísia', 'Japão', 'Monterrey'),
+('F', '25/06 20h', 'Japão', 'Suécia', 'Dallas'),
+('F', '25/06 20h', 'Tunísia', 'Países Baixos', 'Kansas City'),
+('G', '15/06 16h', 'Bélgica', 'Egito', 'Seattle'),
+('G', '15/06 22h', 'Irã', 'Nova Zelândia', 'Los Angeles'),
+('G', '21/06 16h', 'Bélgica', 'Irã', 'Los Angeles'),
+('G', '21/06 22h', 'Nova Zelândia', 'Egito', 'Vancouver'),
+('G', '26/06 00h', 'Egito', 'Irã', 'Seattle'),
+('G', '26/06 00h', 'Nova Zelândia', 'Bélgica', 'Vancouver'),
+('H', '15/06 13h', 'Espanha', 'Cabo Verde', 'Atlanta'),
+('H', '15/06 19h', 'Arábia Saudita', 'Uruguai', 'Miami'),
+('H', '21/06 13h', 'Espanha', 'Arábia Saudita', 'Atlanta'),
+('H', '21/06 19h', 'Uruguai', 'Cabo Verde', 'Miami'),
+('H', '26/06 21h', 'Cabo Verde', 'Arábia Saudita', 'Houston'),
+('H', '26/06 21h', 'Uruguai', 'Espanha', 'Guadalajara'),
+('I', '16/06 16h', 'França', 'Senegal', 'NJ/NY'),
+('I', '16/06 19h', 'Iraque', 'Noruega', 'Boston'),
+('I', '22/06 18h', 'França', 'Iraque', 'Filadélfia'),
+('I', '22/06 21h', 'Noruega', 'Senegal', 'NJ/NY'),
+('I', '26/06 16h', 'Noruega', 'França', 'Boston'),
+('I', '26/06 16h', 'Senegal', 'Iraque', 'Toronto'),
+('J', '16/06 22h', 'Argentina', 'Argélia', 'Kansas City'),
+('J', '17/06 01h', 'Áustria', 'Jordânia', 'San Francisco'),
+('J', '22/06 14h', 'Argentina', 'Áustria', 'Dallas'),
+('J', '22/06 00h', 'Jordânia', 'Argélia', 'San Francisco'),
+('J', '27/06 23h', 'Argélia', 'Áustria', 'Kansas City'),
+('J', '27/06 23h', 'Jordânia', 'Argentina', 'Dallas'),
+('K', '17/06 14h', 'Portugal', 'RD Congo', 'Houston'),
+('K', '17/06 23h', 'Uzbequistão', 'Colômbia', 'Cidade do México'),
+('K', '23/06 14h', 'Portugal', 'Uzbequistão', 'Houston'),
+('K', '23/06 23h', 'Colômbia', 'RD Congo', 'Guadalajara'),
+('K', '27/06 20h30', 'Colômbia', 'Portugal', 'Miami'),
+('K', '27/06 20h30', 'RD Congo', 'Uzbequistão', 'Atlanta'),
+('L', '17/06 17h', 'Inglaterra', 'Croácia', 'Dallas'),
+('L', '17/06 20h', 'Gana', 'Panamá', 'Toronto'),
+('L', '23/06 17h', 'Inglaterra', 'Gana', 'Boston'),
+('L', '23/06 20h', 'Panamá', 'Croácia', 'Toronto'),
+('L', '27/06 18h', 'Panamá', 'Inglaterra', 'NJ/NY'),
+('L', '27/06 19h', 'Croácia', 'Gana', 'Filadélfia');

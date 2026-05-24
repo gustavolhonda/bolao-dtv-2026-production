@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <title>⚙️ Admin - Resultados Oficiais</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; padding: 20px; margin: 0; }
+        
+        /* Cabeçalho vermelho para indicar que é área restrita */
+        h1 { text-align: center; color: #d32f2f; margin-bottom: 5px; width: 100%; }
+        p.aviso { text-align: center; color: #555; margin-bottom: 30px; font-weight: bold; }
+        
+        .container-jogos { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border-top: 5px solid #d32f2f;}
+
+        .jogo-card { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #eee; padding: 15px 0; gap: 15px; }
+        .jogo-card:last-child { border-bottom: none; }
+        .jogo-card:hover { background-color: #fff9f9; }
+
+        .meta { flex: 0 0 110px; font-size: 0.85em; color: #777; line-height: 1.4em; }
+        .equipas-wrapper { flex: 1; display: flex; align-items: center; justify-content: center; min-width: 0; }
+        .time-box { flex: 1; display: flex; align-items: center; font-size: 1.1em; font-weight: 500; gap: 8px; }
+        .time-a { justify-content: flex-end; text-align: right; }
+        .time-b { justify-content: flex-start; text-align: left; }
+
+        .placar-inputs { flex: 0 0 140px; display: flex; align-items: center; justify-content: center; gap: 10px; font-weight: bold; font-size: 1.2em; }
+        input[type="number"] { width: 50px; padding: 8px; text-align: center; border: 2px solid #d32f2f; border-radius: 6px; font-size: 1.1em; color: #333; -moz-appearance: textfield; }
+        input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type="number"]:focus { border-color: #b71c1c; outline: none; }
+        
+        .acao-jogo { flex: 0 0 100px; display: flex; justify-content: flex-end; align-items: center; }
+        button { background: #d32f2f; color: white; border: none; padding: 10px 0; cursor: pointer; border-radius: 8px; font-weight: bold; transition: 0.3s; width: 100%;}
+        button:hover { background: #b71c1c; }
+        
+        .flag { width: 24px; height: 18px; vertical-align: middle; box-shadow: 0 1px 3px rgba(0,0,0,0.2); border-radius: 2px; }
+    </style>
+</head>
+<body>
+    <h1>⚙️ Painel do Administrador</h1>
+    <p class="aviso">Atenção: Salvar placares aqui define os resultados REAIS e atualiza o ranking de todos!</p>
+
+    <div class="container-jogos" style="margin-bottom: 30px; border-top: 5px solid #34a853;">
+        <h2 style="color: #34a853; text-align: center; margin-top: 0;">➕ Cadastrar Novo Confronto</h2>
+        <form id="form-novo-jogo" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+            <div>
+                <label>Time A:</label>
+                <input type="text" id="add_time_a" placeholder="Ex: Brasil" required style="width:90%; padding:8px; border: 1px solid #ddd; border-radius:6px;">
+            </div>
+            <div>
+                <label>Time B:</label>
+                <input type="text" id="add_time_b" placeholder="Ex: Argentina" required style="width:90%; padding:8px; border: 1px solid #ddd; border-radius:6px;">
+            </div>
+            <div>
+                <label>Data e Hora:</label>
+                <input type="text" id="add_data_hora" placeholder="Ex: 05/07 - 16:00" required style="width:90%; padding:8px; border: 1px solid #ddd; border-radius:6px;">
+            </div>
+            <div>
+                <label>Fase do Torneio:</label>
+                <select id="add_fase" required style="width:95%; padding:8px; border: 1px solid #ddd; border-radius:6px; background: white;">
+                    <option value="fase_de_grupos">Fase de Grupos</option>
+                    <option value="oitavas">Oitavas de Final</option>
+                    <option value="quartas">Quartas de Final</option>
+                    <option value="semi">Semifinal</option>
+                    <option value="final">Grande Final</option>
+                </select>
+            </div>
+            <div style="grid-column: span 2;">
+                <button type="submit" style="background: #34a853; padding: 12px 0;">Criar Partida</button>
+            </div>
+        </form>
+    </div>
+
+    </div> <div class="container-jogos" id="lista-jogos"></div>
+
+    <script>
+        const API = '/api';
+
+        const flags = {
+            "África do Sul": "za", "Alemanha": "de", "Arábia Saudita": "sa", "Argélia": "dz", "Argentina": "ar", "Austrália": "au", "Áustria": "at",
+            "Bélgica": "be", "Bósnia e Herzegovina": "ba", "Brasil": "br", "Cabo Verde": "cv", "Canadá": "ca", "Catar": "qa", "Colômbia": "co", 
+            "Costa do Marfim": "ci", "Croácia": "hr", "Curaçao": "cw", "Egito": "eg", "Equador": "ec", "Escócia": "gb-sct", "Espanha": "es", 
+            "Estados Unidos": "us", "França": "fr", "Gana": "gh", "Haiti": "ht", "Inglaterra": "gb-eng", "Irã": "ir", "Japão": "jp", "Jordânia": "jo", 
+            "Marrocos": "ma", "México": "mx", "Noruega": "no", "Nova Zelândia": "nz", "Países Baixos": "nl", "Panamá": "pa", "Paraguai": "py", 
+            "Portugal": "pt", "RD Congo": "cd", "República do Congo": "cg", "Iraque": "iq", "República da Coreia": "kr", "Senegal": "sn", 
+            "Suécia": "se", "Suíça": "ch", "Tchéquia": "cz", "Tunísia": "tn", "Turquia": "tr", "Uruguai": "uy", "Uzbequistão": "uz"
+        };
+
+        async function carregarJogosAdmin() {
+            try {
+                const res = await fetch(`${API}/jogos`);
+                const jogos = await res.json();
+                const lista = document.getElementById('lista-jogos');
+                lista.innerHTML = '';
+                
+                jogos.forEach(j => {
+                    const imgA = flags[j.time_a] ? `<img src="https://flagcdn.com/24x18/${flags[j.time_a]}.png" class="flag">` : '';
+                    const imgB = flags[j.time_b] ? `<img src="https://flagcdn.com/24x18/${flags[j.time_b]}.png" class="flag">` : '';
+
+                    // Se já tiver resultado real, ele preenche os inputs
+                    const valA = j.gols_time_a_real !== null ? j.gols_time_a_real : '';
+                    const valB = j.gols_time_b_real !== null ? j.gols_time_b_real : '';
+
+                    lista.innerHTML += `
+                        <div class="jogo-card">
+                            <div class="meta"><strong>${j.fase === 'fase_de_grupos' ? 'Grupo ' + j.grupo : j.fase.toUpperCase()}</strong><br>${j.data_hora}</div>
+                            <div class="equipas-wrapper">
+                                <div class="time-box time-a">${j.time_a} ${imgA}</div>
+                                <div class="placar-inputs">
+                                    <input type="number" id="real_a_${j.id}" value="${valA}" min="0"> 
+                                    <span>x</span> 
+                                    <input type="number" id="real_b_${j.id}" value="${valB}" min="0">
+                                </div>
+                                <div class="time-box time-b">${imgB} ${j.time_b}</div>
+                            </div>
+                            <div class="acao-jogo">
+                                <button onclick="salvarResultadoReal(${j.id})">Encerrar</button>
+                            </div>
+                        </div>`;
+                });
+            } catch (error) {
+                console.error("Erro ao carregar jogos admin:", error);
+            }
+        }
+
+        async function salvarResultadoReal(jogoId) {
+            const gA = document.getElementById(`real_a_${jogoId}`).value;
+            const gB = document.getElementById(`real_b_${jogoId}`).value;
+
+            if(gA === "" || gB === "") return alert("Insira o placar oficial antes de salvar!");
+
+            try {
+                const res = await fetch(`${API}/jogos/${jogoId}/resultado`, {
+                    method: 'PUT',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ gols_time_a_real: gA, gols_time_b_real: gB })
+                });
+
+                if (res.ok) {
+                    alert("Resultado oficial salvo! O ranking principal foi atualizado.");
+                } else {
+                    alert("Erro ao salvar no servidor.");
+                }
+            } catch (error) {
+                console.error("Erro:", error);
+                alert("Falha na comunicação com a API.");
+            }
+        }
+
+        // Adicione este listener junto com os seus outros scripts do admin.html
+        document.getElementById('form-novo-jogo').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const dados = {
+                time_a: document.getElementById('add_time_a').value.trim(),
+                time_b: document.getElementById('add_time_b').value.trim(),
+                data_hora: document.getElementById('add_data_hora').value.trim(),
+                fase: document.getElementById('add_fase').value,
+                grupo: document.getElementById('add_fase').value === 'fase_de_grupos' ? 'A' : '-'
+            };
+
+            try {
+                const res = await fetch(`${API}/jogos`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(dados)
+                });
+
+                if (res.ok) {
+                    alert("Novo confronto cadastrado com sucesso!");
+                    document.getElementById('form-novo-jogo').reset();
+                    carregarJogosAdmin(); // Recarrega a lista abaixo atualizada
+                } else {
+                    alert("Erro ao salvar o jogo.");
+                }
+            } catch (error) {
+                console.error(error);
+                alert("Erro na comunicação com o servidor.");
+            }
+        });
+
+        carregarJogosAdmin();
+    </script>
+</body>
+</html>
